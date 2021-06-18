@@ -6,7 +6,7 @@ from picamera import PiCamera
 
 min_confidence = 0.4
 show_ratio = 1.0
-title_name = 'Defect Inspection'
+title_name = 'Strawberry Inspection'
 
 # Load Yolo
 net = cv2.dnn.readNet("./model/strawberry_yolotiny_2000.weights", "./model/strawberry_yolotiny.cfg")
