@@ -6,7 +6,7 @@ from color import TCS34725
 from strawberry import STRAWBERRY
 
 #Maria DB
-Conn = pymysql.connect(port=3306, host='192.168.0.**', user='root', password='12341234', db='kosta', charset='utf8')
+Conn = pymysql.connect(port=3306, host='192.168.0.10', user='root', password='12341234', db='kosta', charset='utf8')
 Cur = Conn.cursor()
 
 #Strawberry
@@ -26,8 +26,8 @@ for frame in strawberry.camera.capture_continuous(strawberry.rawCapture, format=
     strawberry.rawCapture.truncate(0)
     
     Sector = color.get_sector()
-
-    if Ripe + unRipe != 0:
+    print(Sector)
+    if Ripe + unRipe != 0 and Sector != 0:
         Values = Ripe, unRipe, Sector
         Cur.execute(QueryBerry, Values)
         Conn.commit()

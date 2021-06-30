@@ -8,6 +8,8 @@
 import smbus
 import time
  
+sector = 0 
+ 
 # Get I2C bus
 bus = smbus.SMBus(1)
  
@@ -61,6 +63,7 @@ class TCS34725():
         self.red = None
         self.green = None
         self.blue = None
+        self.Sectort = sector
  
     def enable_selection(self):
         """Select the ENABLE register configuration from the given provided values"""
@@ -86,17 +89,17 @@ class TCS34725():
         self.green = data[5] * 256 + data[4]
         self.blue = data[7] * 256 + data[6]
         total = self.red + self.green + self.blue
-        sector = 0
         
         if self.red/total > 0.45:
-            sector = 1
+            self.Sector = 1
         elif self.blue/total > 0.4:
-            sector = 2
+            self.Sector = 2
         elif (self.red+self.green)/total > 0.75:
-            sector = 3
+            self.Sector = 3
         elif (self.red+self.blue)/total > 0.7:
-            sector = 4
+            self.Sector = 4
         
+        sector = self.Sector
         return sector
     
 if __name__=="__main__":

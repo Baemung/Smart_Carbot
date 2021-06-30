@@ -40,7 +40,6 @@ class STRAWBERRY():
     def detectAndDisplay(self, image):
         start_time = time.time()
         h, w = image.shape[:2]
-        frame_height = int(h * frame_width / w)
         img = cv2.resize(image, (frame_width, frame_height))
 
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), swapRB=True, crop=False)
