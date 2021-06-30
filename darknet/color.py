@@ -58,6 +58,9 @@ class TCS34725():
         self.enable_selection()
         self.time_selection()
         self.gain_selection()
+        self.red = None
+        self.green = None
+        self.blue = None
  
     def enable_selection(self):
         """Select the ENABLE register configuration from the given provided values"""
@@ -79,19 +82,19 @@ class TCS34725():
         data = bus.read_i2c_block_data(TCS34725_DEFAULT_ADDRESS, TCS34725_REG_CDATAL | TCS34725_COMMAND_BIT, 8)
  
         # Convert the data
-        red = data[3] * 256 + data[2]
-        green = data[5] * 256 + data[4]
-        blue = data[7] * 256 + data[6]
-        total = red + green + blue
+        self.red = data[3] * 256 + data[2]
+        self.green = data[5] * 256 + data[4]
+        self.blue = data[7] * 256 + data[6]
+        total = self.red + self.green + self.blue
         sector = 0
         
-        if red/total > 0.5:
+        if self.red/total > 0.45:
             sector = 1
-        elif blue/total > 0.5:
+        elif self.blue/total > 0.4:
             sector = 2
-        elif (red+green)/total > 0.7 and red/green > 0.75 and red/green < 1.25:
+        elif (self.red+self.green)/total > 0.75:
             sector = 3
-        elif (red+blue)/total > 0.7 and red/blue > 1.2 and red/blue < 1.7:
+        elif (self.red+self.blue)/total > 0.7:
             sector = 4
         
         return sector
@@ -101,7 +104,7 @@ if __name__=="__main__":
     lastSector = 0
     while(1): 
         Sector = color.get_sector()
-        if Sector != lastSector and Sector != 0:
-            print(Sector)
+        print("red : ",color.red, ", green : ",color.green, " blue : ",color.blue, " total : ", color.red+color.green+color.blue)
+        print(Sector)
         lastSector = Sector
         time.sleep(1)

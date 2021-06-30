@@ -11,44 +11,8 @@
 
 unsigned char m_a_spd = 0, m_b_spd = 0; //모터의 속력을 저장하는 전역변수
 boolean m_a_dir = 0, m_b_dir = 0; //모터의 방향을 결정하는 전역변수
+unsigned long past = 0; 
 
-void setup()  
-{
-  TCCR1B = TCCR1B & 0b11111000 | 0x05;  //저속주행이 가능하도록 모터A PWM 주파수 변경
-  TCCR2B = TCCR2B & 0b11111000 | 0x07;  //저속주행이 가능하도록 모터B PWM 주파수 변경
-  
-  //모터 제어 핀들을 출력으로 설정합니다.
-  pinMode(MOTOR_A_a, OUTPUT);
-  pinMode(MOTOR_A_b, OUTPUT);
-  pinMode(MOTOR_B_a, OUTPUT);
-  pinMode(MOTOR_B_b, OUTPUT);
-
-  //라인센서 핀들을 입력으로 설정합니다.
-  pinMode(LINESENS_L, INPUT);
-  pinMode(LINESENS_R, INPUT);
-
-  //초음파 센서
-  pinMode(TRIG, OUTPUT);
-  pinMode(ECHO, INPUT);
-}
-
-void loop()
-{
-    int dist = get_dist(); //장애물이 없으면
-    if(dist >= 30)
-    {
-      linetrace_val();  //입력된 데이터에 따라 모터에 입력될 변수를 조정하는 함수
-      motor_drive();    //모터를 구동하는 함수
-    }
-    else
-    {
-      m_a_dir = 0;  //모터A 정방향
-      m_b_dir = 0;  //모터B 정방향
-      m_a_spd = 0;  //모터A의 정지
-      m_b_spd = 0;  //모터B의 정지
-      motor_drive();
-    }
-}
 
 void linetrace_val() //입력된 데이터에 따라 모터에 입력될 변수를 조정하는 함수
 {
@@ -127,4 +91,64 @@ int get_dist()
 
   //PC모니터로 초음파 거리값을 확인 하는 코드
   return distance;
+}
+
+void drive()
+{
+    int dist = get_dist(); //장애물이 없으면
+    if(dist >= 10)
+    {
+      linetrace_val();  //입력된 데이터에 따라 모터에 입력될 변수를 조정하는 함수
+      motor_drive();
+    }
+    else
+    {
+      pause();
+    }
+}
+
+void pause()
+{
+    m_a_dir = 0;  //모터A 정방향
+    m_b_dir = 0;  //모터B 정방향
+    m_a_spd = 0;  //모터A의 정지
+    m_b_spd = 0;  //모터B의 정지
+    motor_drive();
+}
+
+void setup()  
+{
+  TCCR1B = TCCR1B & 0b11111000 | 0x05;  //저속주행이 가능하도록 모터A PWM 주파수 변경
+  TCCR2B = TCCR2B & 0b11111000 | 0x07;  //저속주행이 가능하도록 모터B PWM 주파수 변경
+  
+  //모터 제어 핀들을 출력으로 설정합니다.
+  pinMode(MOTOR_A_a, OUTPUT);
+  pinMode(MOTOR_A_b, OUTPUT);
+  pinMode(MOTOR_B_a, OUTPUT);
+  pinMode(MOTOR_B_b, OUTPUT);
+
+  //라인센서 핀들을 입력으로 설정합니다.
+  pinMode(LINESENS_L, INPUT);
+  pinMode(LINESENS_R, INPUT);
+
+  //초음파 센서
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+}
+
+void loop(){
+  unsigned long now = millis();
+  
+  if(now - past >= 0 && now - past <= 1500)
+  {
+    drive();
+  }
+  else if(now - past <= 3500)
+  {
+    pause();
+  }
+  else if(now - past >= 3500)
+  {
+    past = now;
+  }
 }
